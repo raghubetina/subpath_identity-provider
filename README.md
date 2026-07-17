@@ -32,6 +32,10 @@ class ProfilesController < ApplicationController
 end
 ```
 
+This calls `rodauth.require_account`, not `rodauth.logged_in?` — `logged_in?` only checks that the session carries an account id, with no account lookup at all, so a closed or deleted account would keep a previously issued session usable indefinitely. `require_account` re-fetches the account filtered by status and clears the session before redirecting if that lookup comes back empty.
+
+That status filter only actually excludes anything once your app's own `skip_status_checks?` is `false` — Rodauth defaults it to `true` unless you enable the `:close_account` or `:verify_account` feature (either flips it), or set it explicitly. If your app tracks an account status column but never uses it — no verification flow, no way to close an account — `require_account` behaves exactly like `logged_in?` until you turn status checks on. Enabling status checks on an app that's been running with them off needs a data migration first: Rodauth's own signup path only assigns an explicit initial status when `skip_status_checks?` is `false`, so any account created before that point may be sitting on your status column's plain database default rather than "open" — check what that default is before flipping the switch, or every existing session will suddenly fail the filter instead of just closed ones.
+
 ## Patterns this gem doesn't abstract
 
 **Writing the shared cookie on login and signup.** Wire both hooks, not just one — Rodauth's `create_account` autologin path (`autologin_session`, on by default via `create_account_autologin?`) sets the session directly and never calls `after_login`, so a signup without a following login step would leave the cookie unset with only one hook wired:
