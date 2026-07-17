@@ -15,9 +15,20 @@ module SubpathIdentity
     # as simple as a shared dark-mode toggle written from a relying-party
     # app, but it means a compromised relying party could forge a shared
     # identity for any user_id. Gating this app's own mutations on
-    # signed_in? would let that forged cookie reach them; gating on
-    # rodauth.logged_in? doesn't, because forging that would require this
-    # app's own SECRET_KEY_BASE, which no other app in the cluster has.
+    # signed_in? would let that forged cookie reach them; gating on a
+    # real Rodauth session doesn't, because forging that would require
+    # this app's own SECRET_KEY_BASE, which no other app in the cluster
+    # has.
+    #
+    # rodauth.require_account, not rodauth.logged_in? — logged_in? is
+    # only "does the session have an account_id in it," with no account
+    # lookup at all, so a closed or deleted account keeps a previously
+    # issued session usable forever. require_account (rodauth-rails'
+    # own documented pattern for protecting a plain Rails controller —
+    # see its README, "You can also require authentication at the
+    # controller layer") re-fetches the account filtered by status
+    # (open/unverified, controlled by skip_status_checks?) and clears
+    # the session before redirecting if that lookup comes back empty.
     #
     # Requires rodauth-rails, which wires the `rodauth` helper into every
     # controller automatically.
@@ -31,7 +42,7 @@ module SubpathIdentity
       private
 
       def require_rodauth_session!
-        redirect_to "/login" unless rodauth.logged_in?
+        rodauth.require_account
       end
     end
   end
