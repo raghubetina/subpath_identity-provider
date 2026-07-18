@@ -12,7 +12,7 @@ yet, so declare **both** git sources — pin tags for a reproducible build:
 
 ```ruby
 # Gemfile
-gem "subpath_identity", github: "raghubetina/subpath_identity", tag: "v0.3.0"
+gem "subpath_identity", github: "raghubetina/subpath_identity", tag: "v0.3.1"
 gem "subpath_identity-provider", github: "raghubetina/subpath_identity-provider", tag: "v0.2.2"
 ```
 
