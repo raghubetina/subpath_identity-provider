@@ -1,5 +1,10 @@
 ## [Unreleased]
 
+## [0.2.2] - 2026-07-18
+
+- The documented internal profile endpoint now returns a typed `410 {"error": "account_gone"}` for a closed/unknown account instead of a bare 404, matching `subpath_identity-client` 0.3.0's revocation protocol (an untyped 404 no longer revokes — deploy-skew safety). Docs only; safe to upgrade in either order.
+- Declared Rails floor raised to `>= 8.1` — the toolchain CI actually tests. Rails 7 was never deliberately supported, only inherited from scaffolding defaults.
+
 ## [0.2.1] - 2026-07-18
 
 - Install docs now use a GitHub source (the gems aren't on RubyGems yet, so `bundle add` can't resolve them). No code change.

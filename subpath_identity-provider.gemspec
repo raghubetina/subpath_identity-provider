@@ -39,7 +39,7 @@ Gem::Specification.new do |spec|
   # a v1 core here with v2 clients would make their cookies unreadable.
   spec.add_dependency "subpath_identity", ">= 0.2", "< 1.0"
   spec.add_dependency "rodauth-rails", ">= 1.0"
-  spec.add_dependency "activesupport", ">= 7.0"
+  spec.add_dependency "activesupport", ">= 8.1"
 
   # For more information and examples about making a new gem, check out our
   # guide at: https://bundler.io/guides/creating_gem.html

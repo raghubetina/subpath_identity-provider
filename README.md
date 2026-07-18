@@ -13,7 +13,7 @@ yet, so declare **both** git sources — pin tags for a reproducible build:
 ```ruby
 # Gemfile
 gem "subpath_identity", github: "raghubetina/subpath_identity", tag: "v0.3.0"
-gem "subpath_identity-provider", github: "raghubetina/subpath_identity-provider", tag: "v0.2.1"
+gem "subpath_identity-provider", github: "raghubetina/subpath_identity-provider", tag: "v0.2.2"
 ```
 
 (Once these are published, `bundle add subpath_identity-provider` will
@@ -113,14 +113,19 @@ class InternalController < ApplicationController
     return head(:unauthorized) unless signed_in?
 
     account = Account.find_by(id: current_shared_identity[:user_id])
-    # verified?, not just present — return 404 for a closed account,
-    # same as for an unknown id. subpath_identity-client's
-    # RootProfileClient turns that 404 into its GONE result, which makes
-    # SyncLocalProfile drop the relying party's cached copy and sign the
-    # account out cluster-wide. Return 200 with stale data instead and
-    # the relying parties keep displaying a closed account's name and
-    # email until the shared cookie's TTL expires.
-    return head(:not_found) unless account&.verified?
+    # verified?, not just present — a closed account answers exactly
+    # like an unknown id. And the answer is a TYPED 410, not a bare
+    # 404: subpath_identity-client (>= 0.3) treats only
+    # `410 + {"error": "account_gone"}` as its GONE result — the signal
+    # to drop the relying party's cached copy and sign the account out
+    # cluster-wide. A plain 404 is deliberately ignored by the client
+    # (it can just as easily mean a wrong path, a route missing
+    # mid-deploy, or a stale origin image, and must not sign users
+    # out), and returning 200 with stale data would keep the closed
+    # account's name and email on display until the cookie's TTL.
+    unless account&.verified?
+      return render(json: {error: "account_gone"}, status: :gone)
+    end
 
     render json: {user_id: account.id, email: account.email, cache_key: account.cache_key_with_version}
   end
@@ -128,6 +133,8 @@ end
 ```
 
 Remember to add this path to `worker_origin_exempt_paths` in your `subpath_identity` configuration — it's called server-to-server and never goes through the router. And remember this only actually excludes a closed account once `skip_status_checks?` is `false` (see above) — `verified?` just reads the AR enum directly, so it's correct as soon as your accounts' status values actually mean something, independent of Rodauth's own session-side check.
+
+Version pairing: the typed-410 response is understood by `subpath_identity-client` 0.3.0 and later; an older client treats it as a generic failure and safely degrades to its cache. Conversely a provider still returning 404 never triggers the new client's revocation — also safe, just slower to notice a closed account (bounded by the cookie TTL). Upgrade the two sides in either order; revocation starts working when both speak 410.
 
 Both of these stay as documentation rather than gem code because they're inherently tied to your own `Account` model and whatever fields you want to expose — an abstraction here would add indirection without removing real duplication.
 
