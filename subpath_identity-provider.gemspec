@@ -34,7 +34,10 @@ Gem::Specification.new do |spec|
   spec.executables = spec.files.grep(%r{\Aexe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
 
-  spec.add_dependency "subpath_identity", ">= 0.1", "< 1.0"
+  # >= 0.2: this app writes the shared cookie via core's ControllerHelpers,
+  # so it must speak the same v2 wire format the 0.2 clients read. Pairing
+  # a v1 core here with v2 clients would make their cookies unreadable.
+  spec.add_dependency "subpath_identity", ">= 0.2", "< 1.0"
   spec.add_dependency "rodauth-rails", ">= 1.0"
   spec.add_dependency "activesupport", ">= 7.0"
 
