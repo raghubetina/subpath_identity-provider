@@ -104,12 +104,13 @@ class InternalController < ApplicationController
     return head(:unauthorized) unless signed_in?
 
     account = Account.find_by(id: current_shared_identity[:user_id])
-    # verified?, not just present — this endpoint is the profile
-    # relying parties cache locally (see subpath_identity-client's
-    # SyncLocalProfile), and a closed account should look like no
-    # account at all here too, not just on this app's own mutations,
-    # or a relying party keeps showing and caching a closed account's
-    # data forever.
+    # verified?, not just present — return 404 for a closed account,
+    # same as for an unknown id. subpath_identity-client's
+    # RootProfileClient turns that 404 into its GONE result, which makes
+    # SyncLocalProfile drop the relying party's cached copy and sign the
+    # account out cluster-wide. Return 200 with stale data instead and
+    # the relying parties keep displaying a closed account's name and
+    # email until the shared cookie's TTL expires.
     return head(:not_found) unless account&.verified?
 
     render json: {user_id: account.id, email: account.email, cache_key: account.cache_key_with_version}
