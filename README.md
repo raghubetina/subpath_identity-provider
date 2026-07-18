@@ -6,9 +6,18 @@ This gem is small on purpose. Most of what an identity-owning app needs is just 
 
 ## Installation
 
-```bash
-bundle add subpath_identity-provider
+Not yet released to RubyGems, so install from GitHub. This gem's own
+dependency on `subpath_identity` (core) also can't resolve from RubyGems
+yet, so declare **both** git sources — pin tags for a reproducible build:
+
+```ruby
+# Gemfile
+gem "subpath_identity", github: "raghubetina/subpath_identity", tag: "v0.3.0"
+gem "subpath_identity-provider", github: "raghubetina/subpath_identity-provider", tag: "v0.2.1"
 ```
+
+(Once these are published, `bundle add subpath_identity-provider` will
+pull core in automatically; until then `bundle add` can't resolve either.)
 
 ## What's in the gem
 
