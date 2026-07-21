@@ -1,5 +1,9 @@
 ## [Unreleased]
 
+## [0.2.4] - 2026-07-21
+
+- Core dependency floor raised to `>= 0.5` (its `write_shared_identity` now composes multiple writes in one request, which the client relies on). No code change in this gem.
+
 ## [0.2.3] - 2026-07-21
 
 - The documented login/signup hook pattern now passes `renew_lifetime: true` to `write_shared_identity` — real authentication is what earns a fresh absolute cookie lifetime (core 0.4.0's v3 wire format makes the deadline absolute; ordinary writes carry it forward unchanged). Core floor rises to `>= 0.4` accordingly.

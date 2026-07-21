@@ -34,10 +34,11 @@ Gem::Specification.new do |spec|
   spec.executables = spec.files.grep(%r{\Aexe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
 
-  # >= 0.4: the documented login/signup hooks pass renew_lifetime: true
-  # (added in core 0.4.0), and an identity owner must speak the same v3
-  # wire format the 0.4 clients read.
-  spec.add_dependency "subpath_identity", ">= 0.4", "< 1.0"
+  # >= 0.5: the documented login/signup hooks pass renew_lifetime: true
+  # (core 0.4.0), and an identity owner must speak the same v3 wire
+  # format its clients read; 0.5 keeps the whole cluster on a core whose
+  # write_shared_identity composes multiple same-request writes.
+  spec.add_dependency "subpath_identity", ">= 0.5", "< 1.0"
   spec.add_dependency "rodauth-rails", ">= 1.0"
   spec.add_dependency "activesupport", ">= 8.1"
 
