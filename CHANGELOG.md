@@ -1,5 +1,9 @@
 ## [Unreleased]
 
+## [0.2.5] - 2026-07-21
+
+- Point install docs at core `v0.5.1` (a doc-only core patch). No code change.
+
 ## [0.2.4] - 2026-07-21
 
 - Core dependency floor raised to `>= 0.5` (its `write_shared_identity` now composes multiple writes in one request, which the client relies on). No code change in this gem.
