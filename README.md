@@ -12,8 +12,8 @@ yet, so declare **both** git sources — pin tags for a reproducible build:
 
 ```ruby
 # Gemfile
-gem "subpath_identity", github: "raghubetina/subpath_identity", tag: "v0.3.1"
-gem "subpath_identity-provider", github: "raghubetina/subpath_identity-provider", tag: "v0.2.2"
+gem "subpath_identity", github: "raghubetina/subpath_identity", tag: "v0.4.0"
+gem "subpath_identity-provider", github: "raghubetina/subpath_identity-provider", tag: "v0.2.3"
 ```
 
 (Once these are published, `bundle add subpath_identity-provider` will
@@ -99,9 +99,19 @@ private
 
 # `account` inside a Rodauth hook is Rodauth's own Sequel-backed Hash,
 # not an ActiveRecord instance — re-fetch the real record first.
+#
+# renew_lifetime: true belongs HERE and (essentially) nowhere else:
+# these hooks run on the strength of a real authentication (a password
+# just checked, an account just created), which is what earns a fresh
+# absolute cookie lifetime. Ordinary writes elsewhere — preference
+# toggles, cache_key bumps after a profile edit — omit it, so they
+# carry the existing deadline forward and can never stretch a session
+# past cookie_ttl from its last real login.
 def write_shared_identity_cookie
   record = Account.find(account_id)
-  rails_controller_eval { write_shared_identity(user_id: record.id, cache_key: record.cache_key_with_version) }
+  rails_controller_eval do
+    write_shared_identity(renew_lifetime: true, user_id: record.id, cache_key: record.cache_key_with_version)
+  end
 end
 ```
 

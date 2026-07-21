@@ -15,7 +15,7 @@ Gem::Specification.new do |spec|
     "subpath_identity cluster that owns accounts."
   spec.homepage = "https://github.com/raghubetina/subpath_identity-provider"
   spec.license = "MIT"
-  spec.required_ruby_version = ">= 3.2.0"
+  spec.required_ruby_version = ">= 3.3.0"
   spec.metadata["allowed_push_host"] = "https://rubygems.org"
   spec.metadata["homepage_uri"] = spec.homepage
   spec.metadata["source_code_uri"] = spec.homepage
@@ -34,10 +34,10 @@ Gem::Specification.new do |spec|
   spec.executables = spec.files.grep(%r{\Aexe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
 
-  # >= 0.2: this app writes the shared cookie via core's ControllerHelpers,
-  # so it must speak the same v2 wire format the 0.2 clients read. Pairing
-  # a v1 core here with v2 clients would make their cookies unreadable.
-  spec.add_dependency "subpath_identity", ">= 0.2", "< 1.0"
+  # >= 0.4: the documented login/signup hooks pass renew_lifetime: true
+  # (added in core 0.4.0), and an identity owner must speak the same v3
+  # wire format the 0.4 clients read.
+  spec.add_dependency "subpath_identity", ">= 0.4", "< 1.0"
   spec.add_dependency "rodauth-rails", ">= 1.0"
   spec.add_dependency "activesupport", ">= 8.1"
 

@@ -1,5 +1,10 @@
 ## [Unreleased]
 
+## [0.2.3] - 2026-07-21
+
+- The documented login/signup hook pattern now passes `renew_lifetime: true` to `write_shared_identity` — real authentication is what earns a fresh absolute cookie lifetime (core 0.4.0's v3 wire format makes the deadline absolute; ordinary writes carry it forward unchanged). Core floor rises to `>= 0.4` accordingly.
+- `required_ruby_version` raised to `>= 3.3` and CI runs the declared floor against the committed lockfile (the lock pins `parallel 2.1.0`, whose own floor is Ruby 3.3).
+
 ## [0.2.2] - 2026-07-18
 
 - The documented internal profile endpoint now returns a typed `410 {"error": "account_gone"}` for a closed/unknown account instead of a bare 404, matching `subpath_identity-client` 0.3.0's revocation protocol (an untyped 404 no longer revokes — deploy-skew safety). Docs only; safe to upgrade in either order.
